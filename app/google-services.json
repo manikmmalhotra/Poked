@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "128238237417",
+    "firebase_url": "https://poked-1bf5a.firebaseio.com",
+    "project_id": "poked-1bf5a",
+    "storage_bucket": "poked-1bf5a.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:128238237417:android:5f07c62b82a7424abf2278",
+        "android_client_info": {
+          "package_name": "com.jerry.poked"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "128238237417-43ct94aqnto82pd1aam7i378o3hu2bhp.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBUPKWSzNj44x_yKk4HC8_cTgo8DngWAtU"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "128238237417-43ct94aqnto82pd1aam7i378o3hu2bhp.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
