@@ -1,5 +1,4 @@
 package com.jerry.poked;
-
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -26,7 +25,8 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
-public class ContextActivity extends AppCompatActivity {
+
+public class ContactsActivity extends AppCompatActivity {
 
     BottomNavigationView navView;
     RecyclerView myContactsList;
@@ -37,63 +37,73 @@ public class ContextActivity extends AppCompatActivity {
     private String currentUserId;
     private String userName ="", profileImage ="";
 
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_context);
+        setContentView(R.layout.activity_contacts);
 
         mAuth = FirebaseAuth.getInstance();
         currentUserId = mAuth.getCurrentUser().getUid();
         contactsRef = FirebaseDatabase.getInstance().getReference().child("Contacts");
         usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
 
-
-        navView = findViewById(R.id.nav_View);
+        navView = findViewById(R.id.nav_view);
         navView.setOnNavigationItemSelectedListener(navigationItemSelectedListener);
 
-        findPeopleBtn = findViewById(R.id.find_PepoleBtn);
-        myContactsList = findViewById(R.id.contactsList);
+        findPeopleBtn = findViewById(R.id.find_people_btn);
+        myContactsList = findViewById(R.id.contact_list);
         myContactsList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
         findPeopleBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                Intent fndPeopleIntent = new Intent(ContextActivity.this,FindPeopleActivity.class);
-                startActivity(fndPeopleIntent);
+            public void onClick(View v) {
+
+                Intent findPeopleIntent = new Intent(ContactsActivity.this, FindPeopleActivity.class);
+                startActivity(findPeopleIntent);
+
             }
         });
 
     }
-    private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
-        @Override
-        public boolean onNavigationItemSelected(@NonNull MenuItem item) {
-            switch (item.getItemId()){
-                    case R.id.nav_home:
-                        Intent mainIntent = new Intent(ContextActivity.this, ContextActivity.class);
-                        startActivity(mainIntent);
-                        break;
 
-                    case R.id.nav_logout:
-                        Intent logoutIntent = new Intent(ContextActivity.this,RegisterationActivity.class);
-                        startActivity(logoutIntent);
-                        break;
 
-                    case R.id.nav_settings:
-                        Intent settingIntent = new Intent(ContextActivity.this,SettingsActivity.class);
-                        startActivity(settingIntent);
-                        break;
+    private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener =
+            new BottomNavigationView.OnNavigationItemSelectedListener() {
+                @Override
+                public boolean onNavigationItemSelected(@NonNull MenuItem menuItem) {
 
-                    case R.id.nav_notific:
-                        Intent notficIntent = new Intent(ContextActivity.this,NotificationActivity.class);
-                        startActivity(notficIntent);
-                        finish();
-                        break;
+                    switch (menuItem.getItemId())
+                    {
+                        case R.id.navigation_home:
+                            Intent mainIntent = new Intent(ContactsActivity.this, ContactsActivity.class);
+                            startActivity(mainIntent);
+                            break;
 
+                        case R.id.navigation_settings:
+                            Intent settingsIntent = new Intent(ContactsActivity.this, SettingsActivity.class);
+                            startActivity(settingsIntent);
+                            break;
+
+                        case R.id.navigation_notifications:
+                            Intent notificationIntent = new Intent(ContactsActivity.this, NotificationsActivity.class);
+                            startActivity(notificationIntent);
+                            break;
+
+                        case R.id.navigation_logout:
+                            FirebaseAuth.getInstance().signOut();
+                            Intent logoutIntent = new Intent(ContactsActivity.this, RegistrationActivity.class);
+                            startActivity(logoutIntent);
+                            finish();
+                            break;
+
+
+                    }
+
+                    return true;
                 }
+            };
 
-                return true;
-            }
-        };
 
     @Override
     protected void onStart() {
@@ -132,7 +142,7 @@ public class ContextActivity extends AppCompatActivity {
                             @Override
                             public void onClick(View v) {
 
-                                Intent callingIntent = new Intent(ContextActivity.this, CallingActivity.class);
+                                Intent callingIntent = new Intent(ContactsActivity.this, CallingActivity.class);
                                 callingIntent.putExtra("visit_user_id", listUserId);
                                 startActivity(callingIntent);
 
@@ -153,7 +163,7 @@ public class ContextActivity extends AppCompatActivity {
             @NonNull
             @Override
             public ContactsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.contacts_design, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.contact_design, parent, false);
                 ContactsViewHolder viewHolder = new ContactsViewHolder(view);
                 return viewHolder;
             }
@@ -176,9 +186,9 @@ public class ContextActivity extends AppCompatActivity {
 
             super(itemView);
 
-            userNameText = itemView.findViewById(R.id.name_contacts);
+            userNameText = itemView.findViewById(R.id.name_contact);
             callBtn = itemView.findViewById(R.id.call_btn);
-            profileImageView = itemView.findViewById(R.id.image_contacts);
+            profileImageView = itemView.findViewById(R.id.image_contact);
 
         }
     }
@@ -193,7 +203,7 @@ public class ContextActivity extends AppCompatActivity {
 
                 if(!dataSnapshot.exists())
                 {
-                    Intent settngIntent = new Intent(ContextActivity.this, SettingsActivity.class);
+                    Intent settngIntent = new Intent(ContactsActivity.this, SettingsActivity.class);
                     startActivity(settngIntent);
                     finish();
                 }
@@ -212,4 +222,3 @@ public class ContextActivity extends AppCompatActivity {
 
 
 }
-

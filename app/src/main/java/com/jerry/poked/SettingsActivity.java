@@ -1,5 +1,6 @@
 package com.jerry.poked;
 
+
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.appcompat.app.AppCompatActivity;
@@ -33,14 +34,15 @@ import java.util.HashMap;
 public class SettingsActivity extends AppCompatActivity {
 
     private Button saveBtn;
-    private EditText userNameET, userBioET;
+    private EditText userNameET, userBioEt;
     private ImageView profileImageView;
 
-    private static int GALLERYPICK = 1;
+    private static int GalleryPic = 1;
     private Uri ImageUri;
-    private StorageReference userProfileImageRef;
-    private String dowanloadUri;
+    private StorageReference userProfileImgRef;
+    private String downloadUrl;
     private DatabaseReference userRef;
+
     private ProgressDialog progressDialog;
 
     @Override
@@ -48,121 +50,157 @@ public class SettingsActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
 
-
-        userProfileImageRef = FirebaseStorage.getInstance().getReference().child("Profile Images");
+        userProfileImgRef = FirebaseStorage.getInstance().getReference().child("Profile Images");
         userRef = FirebaseDatabase.getInstance().getReference().child("Users");
 
-        saveBtn = findViewById(R.id.save_setting_Btn);
-        userNameET = findViewById(R.id.username_setting_EDT);
-        userBioET = findViewById(R.id.bio_setting_EDT);
-        profileImageView = findViewById(R.id.setting_Profile_image);
+
+        saveBtn = findViewById(R.id.save_settings_btn);
+        userNameET = findViewById(R.id.username_settings);
+        userBioEt = findViewById(R.id.bio_settings);
+        profileImageView = findViewById(R.id.settings_profile_image);
         progressDialog = new ProgressDialog(this);
+
 
         profileImageView.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
+            public void onClick(View v) {
+
                 Intent galleryIntent = new Intent();
                 galleryIntent.setAction(Intent.ACTION_GET_CONTENT);
                 galleryIntent.setType("image/*");
-                startActivityForResult(galleryIntent,GALLERYPICK);
+                startActivityForResult(galleryIntent, GalleryPic);
+
             }
         });
 
+
         saveBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                saveUserData();
+            public void onClick(View v) {
+
+                saveUserdata();
+
             }
         });
+
 
         retrieveUserInfo();
 
     }
 
+
+
     @Override
     protected void onActivityResult(int requestCode, int resultCode, @Nullable Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
-        if (requestCode == GALLERYPICK && resultCode ==RESULT_OK && data != null){
-
+        if(requestCode==GalleryPic && resultCode==RESULT_OK && data!=null)
+        {
             ImageUri = data.getData();
             profileImageView.setImageURI(ImageUri);
+
+
         }
+
     }
 
-    private void saveUserData(){
+
+    private void saveUserdata() {
+
         final String getUserName = userNameET.getText().toString();
-        final String getUserStatus = userBioET.getText().toString();
+        final String getUserStatus = userBioEt.getText().toString();
 
-        if (ImageUri == null){
-
+        if(ImageUri == null)
+        {
             userRef.addValueEventListener(new ValueEventListener() {
                 @Override
-                public void onDataChange(@NonNull DataSnapshot snapshot) {
-                    if(snapshot.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).hasChild("image") ){
-                        savedatwithoutImage();
+                public void onDataChange(DataSnapshot dataSnapshot) {
+
+                    if(dataSnapshot.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).hasChild("image"))
+                    {
+                        saveInfoOnlyWithoutImage();
+
                     }
-                    else{
-                        Toast.makeText(SettingsActivity.this, "Please Select Image First", Toast.LENGTH_SHORT).show();
+                    else
+                    {
+                        Toast.makeText(SettingsActivity.this, "Please select Image first.", Toast.LENGTH_SHORT).show();
                     }
+
                 }
 
                 @Override
-                public void onCancelled(@NonNull DatabaseError error) {
+                public void onCancelled(DatabaseError databaseError) {
 
                 }
             });
-        }else if (getUserName.equals("")){
-            Toast.makeText(this, "userName is Mandatory", Toast.LENGTH_SHORT).show();
+
         }
-        else if(getUserStatus.equals("")){
-            Toast.makeText(this, "bio is Mandatory", Toast.LENGTH_SHORT).show();
+        else if (getUserName.equals(""))
+        {
+            Toast.makeText(this, "Username is mandatory", Toast.LENGTH_SHORT).show();
         }
-        else{
+        else if (getUserStatus.equals(""))
+        {
+            Toast.makeText(this, "bio is mandatory", Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
 
             progressDialog.setTitle("Account Settings");
-            progressDialog.setMessage("Please wait....");
+            progressDialog.setMessage("Please wait...");
             progressDialog.show();
 
+            final StorageReference filePath = userProfileImgRef
+                    .child(FirebaseAuth.getInstance().getCurrentUser().getUid());
 
 
-            final StorageReference filePath = userProfileImageRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid());
             final UploadTask uploadTask = filePath.putFile(ImageUri);
 
             uploadTask.continueWithTask(new Continuation<UploadTask.TaskSnapshot, Task<Uri>>() {
                 @Override
                 public Task<Uri> then(@NonNull Task<UploadTask.TaskSnapshot> task) throws Exception {
 
-                    if (!task.isSuccessful()){
-                        throw task.getException();
+                    if(!task.isSuccessful())
+                    {
+
+                        task.getException();
+
                     }
 
-                    dowanloadUri = filePath.getDownloadUrl().toString();
-
+                    downloadUrl = filePath.getDownloadUrl().toString();
                     return filePath.getDownloadUrl();
                 }
             }).addOnCompleteListener(new OnCompleteListener<Uri>() {
                 @Override
                 public void onComplete(@NonNull Task<Uri> task) {
-                    if (task.isSuccessful()) {
-                        dowanloadUri = task.getResult().toString();
-                        HashMap<String, Object> profileMaap = new HashMap<>();
-                        profileMaap.put("uid", FirebaseAuth.getInstance().getCurrentUser().getUid());;
-                        profileMaap.put("name", getUserName);
-                        profileMaap.put("bio", getUserStatus);
-                        profileMaap.put("image", dowanloadUri);
+
+                    if(task.isSuccessful())
+                    {
+                        downloadUrl = task.getResult().toString();
+
+                        HashMap<String, Object>  profileMap = new HashMap<>();
+                        profileMap.put("uid", FirebaseAuth.getInstance().getCurrentUser().getUid());
+                        profileMap.put("name", getUserName);
+                        profileMap.put("status", getUserStatus);
+                        profileMap.put("image", downloadUrl);
+
+
                         userRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
-                                .updateChildren(profileMaap).addOnCompleteListener(new OnCompleteListener<Void>() {
+                                .updateChildren(profileMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                             @Override
                             public void onComplete(@NonNull Task<Void> task) {
-                                if (task.isSuccessful()){
-                                    Intent initent = new Intent(SettingsActivity.this,ContextActivity.class);
 
-                                    startActivity(initent);
+                                if(task.isSuccessful())
+                                {
+                                    Intent intent = new Intent(SettingsActivity.this, ContactsActivity.class);
+                                    startActivity(intent);
                                     finish();
                                     progressDialog.dismiss();
+
                                     Toast.makeText(SettingsActivity.this, "Profile settings has been updated", Toast.LENGTH_SHORT).show();
                                 }
+
+
                             }
                         });
 
@@ -170,60 +208,83 @@ public class SettingsActivity extends AppCompatActivity {
                 }
             });
         }
+
     }
 
-    private void savedatwithoutImage() {
-        final String getuserName = userNameET.getText().toString();
-        final String getuserBio = userBioET.getText().toString();
-        if (getuserName.equals("")) {
-            Toast.makeText(this, "Requred name", Toast.LENGTH_SHORT).show();
-        } else if (getuserBio.equals("")) {
-            Toast.makeText(this, "Requred bio", Toast.LENGTH_SHORT).show();
-        } else {
+    private void saveInfoOnlyWithoutImage() {
 
-            progressDialog.setTitle("Account Setting");
-            progressDialog.setMessage("Please wait ....");
+        final String getUserName = userNameET.getText().toString();
+        final String getUserStatus = userBioEt.getText().toString();
+
+
+        if (getUserName.equals(""))
+        {
+            Toast.makeText(this, "Username is mandatory", Toast.LENGTH_SHORT).show();
+        }
+        else if (getUserStatus.equals(""))
+        {
+            Toast.makeText(this, "bio is mandatory", Toast.LENGTH_SHORT).show();
+        }
+        else
+        {
+
+            progressDialog.setTitle("Account Settings");
+            progressDialog.setMessage("Please wait...");
             progressDialog.show();
-            HashMap<String, Object> profileMaap = new HashMap<>();
-            profileMaap.put("uid", FirebaseAuth.getInstance().getCurrentUser().getUid());
-            profileMaap.put("name", getuserName);
-            profileMaap.put("bio", getuserBio);
 
-            userRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid()).updateChildren(profileMaap).addOnCompleteListener(new OnCompleteListener<Void>() {
+            HashMap<String, Object>  profileMap = new HashMap<>();
+            profileMap.put("uid", FirebaseAuth.getInstance().getCurrentUser().getUid());
+            profileMap.put("name", getUserName);
+            profileMap.put("status", getUserStatus);
+
+
+            userRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
+                    .updateChildren(profileMap).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {
 
-                    if (task.isSuccessful()) {
-                        startActivity(new Intent(SettingsActivity.this, ContextActivity.class));
+                    if(task.isSuccessful())
+                    {
+                        Intent intent = new Intent(SettingsActivity.this, ContactsActivity.class);
+                        startActivity(intent);
                         finish();
                         progressDialog.dismiss();
-                        Toast.makeText(SettingsActivity.this, "Profile update", Toast.LENGTH_SHORT).show();
+
+                        Toast.makeText(SettingsActivity.this, "Profile settings has been updated", Toast.LENGTH_SHORT).show();
                     }
+
+
                 }
             });
         }
+
+
+
     }
 
-    private void retrieveUserInfo(){
+
+    private void retrieveUserInfo()
+    {
         userRef.child(FirebaseAuth.getInstance().getCurrentUser().getUid())
                 .addValueEventListener(new ValueEventListener() {
                     @Override
-                    public void onDataChange(@NonNull DataSnapshot snapshot) {
-                        if(snapshot.exists()){
-                            String imagedb = snapshot.child("image").getValue().toString();
-                            String biodb = snapshot.child("bio").getValue().toString();
-                            String namedb = snapshot.child("name").getValue().toString();
-                            userNameET.setText(namedb);
-                            userBioET.setText(biodb);
+                    public void onDataChange(DataSnapshot dataSnapshot) {
 
-                            Picasso.get().load(imagedb).placeholder(R.drawable.profile_image
-                            ).into(profileImageView);
-
+                        if(dataSnapshot.exists())
+                        {
+//                            String imageDb = dataSnapshot.child("image").getValue().toString();
+//                            String nameDb = dataSnapshot.child("name").getValue().toString();
+//                            String bioDb = dataSnapshot.child("status").getValue().toString();
+//
+//                            userNameET.setText(nameDb);
+//                            userBioEt.setText(bioDb);
+//                            Picasso.get().load(imageDb).placeholder(R.drawable.profile_image).into(profileImageView);
                         }
+
                     }
 
                     @Override
-                    public void onCancelled(@NonNull DatabaseError error) {
+                    public void onCancelled(DatabaseError databaseError) {
 
                     }
                 });
