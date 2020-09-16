@@ -26,7 +26,7 @@ import com.hbb20.CountryCodePicker;
 
 import java.util.concurrent.TimeUnit;
 
-public class RegisterationActivity extends AppCompatActivity {
+public class RegistrationActivity extends AppCompatActivity {
 
     private CountryCodePicker ccp;
     private EditText phoneText;
@@ -51,7 +51,7 @@ public class RegisterationActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_registeration);
+        setContentView(R.layout.activity_registration);
 
 
         mAuth =FirebaseAuth.getInstance();
@@ -63,7 +63,7 @@ public class RegisterationActivity extends AppCompatActivity {
         continueAndNextBtn = findViewById(R.id.continueNextButton);
         relativeLayout = findViewById(R.id.phoneAuth);
 
-       //Login with email
+        //Login with email
         LoginButton = findViewById(R.id.login_button);
         UserEmail = findViewById(R.id.login_email);
         UserPassword = findViewById(R.id.login_password);
@@ -74,7 +74,7 @@ public class RegisterationActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
 
-                Intent registeremailIntent = new Intent(RegisterationActivity.this, RegisterEmailActivity.class);
+                Intent registeremailIntent = new Intent(RegistrationActivity.this, RegisterEmailActivity.class);
                 startActivity(registeremailIntent);
 
 
@@ -91,11 +91,11 @@ public class RegisterationActivity extends AppCompatActivity {
 
                 if(TextUtils.isEmpty(email))
                 {
-                    Toast.makeText(RegisterationActivity.this, "Please write your email", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrationActivity.this, "Please write your email", Toast.LENGTH_SHORT).show();
                 }
                 if(TextUtils.isEmpty(password))
                 {
-                    Toast.makeText(RegisterationActivity.this, "Please write your password", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(RegistrationActivity.this, "Please write your password", Toast.LENGTH_SHORT).show();
                 }
                 else
                 {
@@ -113,13 +113,13 @@ public class RegisterationActivity extends AppCompatActivity {
                                     if(task.isSuccessful())
                                     {
                                         sendUserToMainActivity();
-                                        Toast.makeText(RegisterationActivity.this, "Logged in Successfully", Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(RegistrationActivity.this, "Logged in Successfully", Toast.LENGTH_SHORT).show();
                                         loadingBar.dismiss();
                                     }
                                     else
                                     {
                                         String message = task.getException().toString();
-                                        Toast.makeText(RegisterationActivity.this, "Error: " + message, Toast.LENGTH_SHORT).show();
+                                        Toast.makeText(RegistrationActivity.this, "Error: " + message, Toast.LENGTH_SHORT).show();
                                         loadingBar.dismiss();
                                     }
 
@@ -149,7 +149,7 @@ public class RegisterationActivity extends AppCompatActivity {
 
                     if(verificationCode.equals(""))
                     {
-                        Toast.makeText(RegisterationActivity.this, "Please write verification code first.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegistrationActivity.this, "Please write verification code first.", Toast.LENGTH_SHORT).show();
                     }
                     else
                     {
@@ -172,12 +172,12 @@ public class RegisterationActivity extends AppCompatActivity {
                         loadingBar.setCanceledOnTouchOutside(false);
                         loadingBar.show();
 
-                        PhoneAuthProvider.getInstance().verifyPhoneNumber(phoneNumber, 60, TimeUnit.SECONDS, RegisterationActivity.this, mCallbacks);
+                        PhoneAuthProvider.getInstance().verifyPhoneNumber(phoneNumber, 60, TimeUnit.SECONDS, RegistrationActivity.this, mCallbacks);
 
                     }
                     else
                     {
-                        Toast.makeText(RegisterationActivity.this, "Please write valid phone number.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(RegistrationActivity.this, "Please write valid phone number.", Toast.LENGTH_SHORT).show();
                     }
 
                 }
@@ -198,7 +198,7 @@ public class RegisterationActivity extends AppCompatActivity {
             @Override
             public void onVerificationFailed(FirebaseException e) {
 
-                Toast.makeText(RegisterationActivity.this, "Invalid Phone number", Toast.LENGTH_SHORT).show();
+                Toast.makeText(RegistrationActivity.this, "Invalid Phone number", Toast.LENGTH_SHORT).show();
 
                 loadingBar.dismiss();
                 relativeLayout.setVisibility(View.VISIBLE);
@@ -220,7 +220,7 @@ public class RegisterationActivity extends AppCompatActivity {
                 codeText.setVisibility(View.VISIBLE);
 
                 loadingBar.dismiss();
-                Toast.makeText(RegisterationActivity.this, "Code has been sent, please check.", Toast.LENGTH_SHORT).show();
+                Toast.makeText(RegistrationActivity.this, "Code has been sent, please check.", Toast.LENGTH_SHORT).show();
             }
         };
 
@@ -239,7 +239,7 @@ public class RegisterationActivity extends AppCompatActivity {
 
         if(firebaseUser != null)
         {
-            Intent homeIntent = new Intent(RegisterationActivity.this, ContextActivity.class);
+            Intent homeIntent = new Intent(RegistrationActivity.this, ContactsActivity.class);
             startActivity(homeIntent);
             finish();
         }
@@ -256,7 +256,7 @@ public class RegisterationActivity extends AppCompatActivity {
                         if (task.isSuccessful())
                         {
                             loadingBar.dismiss();
-                            Toast.makeText(RegisterationActivity.this, "Congratulations, you are logged in successfully.", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RegistrationActivity.this, "Congratulations, you are logged in successfully.", Toast.LENGTH_SHORT).show();
                             sendUserToMainActivity();
 
 
@@ -265,7 +265,7 @@ public class RegisterationActivity extends AppCompatActivity {
                         {
                             loadingBar.dismiss();
                             String e = task.getException().toString();
-                            Toast.makeText(RegisterationActivity.this, "Error: " + e, Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RegistrationActivity.this, "Error: " + e, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
@@ -274,7 +274,7 @@ public class RegisterationActivity extends AppCompatActivity {
 
     private void sendUserToMainActivity()
     {
-        Intent intent =  new Intent(RegisterationActivity.this, ContextActivity.class);
+        Intent intent =  new Intent(RegistrationActivity.this, ContactsActivity.class);
         startActivity(intent);
         finish();
     }

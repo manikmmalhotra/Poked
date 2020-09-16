@@ -11,14 +11,14 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.Poked">
-        <activity android:name=".CallingActivity"></activity>
+        <activity android:name=".CallingActivity" />
         <activity android:name=".RegisterEmailActivity" />
         <activity android:name=".ProfileActivity" />
         <activity android:name=".FindPeopleActivity" />
-        <activity android:name=".NotificationActivity" />
+        <activity android:name=".NotificationsActivity" />
         <activity android:name=".SettingsActivity" />
-        <activity android:name=".ContextActivity" />
-        <activity android:name=".RegisterationActivity">
+        <activity android:name=".ContactsActivity" />
+        <activity android:name=".RegistrationActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 

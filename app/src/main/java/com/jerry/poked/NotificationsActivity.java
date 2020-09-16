@@ -27,16 +27,20 @@ import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.google.firebase.database.ValueEventListener;
 import com.squareup.picasso.Picasso;
-public class NotificationActivity extends AppCompatActivity {
+
+public class NotificationsActivity extends AppCompatActivity {
 
     private RecyclerView notifications_list;
     private DatabaseReference friendRequestRef, contactsRef, usersRef;
     private FirebaseAuth mAuth;
     private String currentUserId;
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_notification);
+        setContentView(R.layout.activity_notifications);
 
         mAuth = FirebaseAuth.getInstance();
         currentUserId = mAuth.getCurrentUser().getUid();
@@ -44,11 +48,10 @@ public class NotificationActivity extends AppCompatActivity {
         contactsRef = FirebaseDatabase.getInstance().getReference().child("Contacts");
         usersRef = FirebaseDatabase.getInstance().getReference().child("Users");
 
-
-        notifications_list = findViewById(R.id.notification_List);
+        notifications_list = findViewById(R.id.notifications_list);
         notifications_list.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
-    }
 
+    }
 
     @Override
     protected void onStart() {
@@ -96,7 +99,7 @@ public class NotificationActivity extends AppCompatActivity {
                                         }
 
                                         final String nameStr = dataSnapshot.child("name").getValue().toString();
-                                        holder.userNameTxt.setText(nameStr);
+                                        holder.userNameText.setText(nameStr);
 
                                         holder.acceptBtn.setOnClickListener(new View.OnClickListener() {
                                             @Override
@@ -134,7 +137,7 @@ public class NotificationActivity extends AppCompatActivity {
 
                                                                                                                             if(task.isSuccessful())
                                                                                                                             {
-                                                                                                                                Toast.makeText(NotificationActivity.this, "New Contact Saved", Toast.LENGTH_SHORT).show();
+                                                                                                                                Toast.makeText(NotificationsActivity.this, "New Contact Saved", Toast.LENGTH_SHORT).show();
 
                                                                                                                             }
 
@@ -174,7 +177,7 @@ public class NotificationActivity extends AppCompatActivity {
 
                                                                                     if(task.isSuccessful())
                                                                                     {
-                                                                                        Toast.makeText(NotificationActivity.this, "Friend Request Cancelled.", Toast.LENGTH_SHORT).show();
+                                                                                        Toast.makeText(NotificationsActivity.this, "Friend Request Cancelled.", Toast.LENGTH_SHORT).show();
 
                                                                                     }
 
@@ -214,7 +217,7 @@ public class NotificationActivity extends AppCompatActivity {
             @NonNull
             @Override
             public NotificationsViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.find_freind_design, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.find_friend_design, parent, false);
                 NotificationsViewHolder viewHolder = new NotificationsViewHolder(view);
                 return viewHolder;
 
@@ -225,26 +228,33 @@ public class NotificationActivity extends AppCompatActivity {
 
     }
 
-    public static class NotificationsViewHolder extends RecyclerView.ViewHolder {
-        TextView userNameTxt;
-        Button acceptBtn, cancelBtn;
+    public static class NotificationsViewHolder extends RecyclerView.ViewHolder
+    {
 
+        TextView userNameText;
+        Button acceptBtn, cancelBtn;
         ImageView profileImageView;
         RelativeLayout cardView;
 
-        public NotificationsViewHolder(@NonNull View view) {
-            super(view);
-            userNameTxt = view.findViewById(R.id.name_notification);
-            acceptBtn = view.findViewById(R.id.request_accept_btn);
-            cancelBtn = view.findViewById(R.id.request_decline_btn);
-            profileImageView = view.findViewById(R.id.image_notification);
-            cardView = view.findViewById(R.id.cardViewID);
+        public NotificationsViewHolder(@NonNull View itemView) {
 
+            super(itemView);
 
-
-
+            userNameText = itemView.findViewById(R.id.name_notification);
+            acceptBtn = itemView.findViewById(R.id.request_accept_btn);
+            cancelBtn = itemView.findViewById(R.id.request_cancel_btn);
+            profileImageView = itemView.findViewById(R.id.image_notification);
+            cardView = itemView.findViewById(R.id.card_view);
         }
     }
+
+
+
+
+
+
+
+
 
 
 }
