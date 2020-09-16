@@ -40,7 +40,7 @@ public class FindPeopleActivity extends AppCompatActivity {
         userRef = FirebaseDatabase.getInstance().getReference().child("Users");
 
         setContentView(R.layout.activity_find_people);
-        searchET = findViewById(R.id.editText_search);
+        searchET = findViewById(R.id.serarch_userText);
         findFreindList = findViewById(R.id.findFriendList);
         findFreindList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
 
