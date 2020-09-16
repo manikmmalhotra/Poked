@@ -6,10 +6,12 @@ import androidx.appcompat.app.AppCompatActivity;
 import android.app.ProgressDialog;
 import android.content.Intent;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.RelativeLayout;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import com.google.android.gms.tasks.OnCompleteListener;
@@ -27,144 +29,254 @@ import java.util.concurrent.TimeUnit;
 public class RegisterationActivity extends AppCompatActivity {
 
     private CountryCodePicker ccp;
-    private EditText phonetext;
-    private EditText codetext;
-    private Button countinueAndNextBtn;
-    private String checker ="", phoneNumber = "";
+    private EditText phoneText;
+    private EditText codeText;
+    private Button continueAndNextBtn;
+    private String checker = "", phoneNumber = "";
     private RelativeLayout relativeLayout;
-    private PhoneAuthProvider.OnVerificationStateChangedCallbacks callBacks;
+
+    private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks;
     private FirebaseAuth mAuth;
+    private String mVeryficationId;
     private PhoneAuthProvider.ForceResendingToken mResendToken;
-    private String verifivationId;
     private ProgressDialog loadingBar;
+
+    //Login with email
+    private Button LoginButton;
+    private EditText UserEmail, UserPassword;
+    private TextView NeedNewAccountLink;
+    private FirebaseUser currentUser1;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_registeration);
 
-        mAuth= FirebaseAuth.getInstance();
+
+        mAuth =FirebaseAuth.getInstance();
+        currentUser1 = mAuth.getCurrentUser();
         loadingBar = new ProgressDialog(this);
 
-        phonetext = findViewById(R.id.phoneText);
-        codetext = findViewById(R.id.codeText);
-        countinueAndNextBtn = findViewById(R.id.continueNextButton);
+        phoneText = findViewById(R.id.phoneText);
+        codeText = findViewById(R.id.codeText);
+        continueAndNextBtn = findViewById(R.id.continueNextButton);
         relativeLayout = findViewById(R.id.phoneAuth);
-        ccp = (CountryCodePicker) findViewById(R.id.ccp);
-        ccp.registerCarrierNumberEditText(phonetext);
+
+       //Login with email
+        LoginButton = findViewById(R.id.login_button);
+        UserEmail = findViewById(R.id.login_email);
+        UserPassword = findViewById(R.id.login_password);
+        NeedNewAccountLink = findViewById(R.id.need_new_account_link);
 
 
-        countinueAndNextBtn.setOnClickListener(new View.OnClickListener() {
+        NeedNewAccountLink.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View view) {
-                if(countinueAndNextBtn.getText().equals("Submit") || checker.equals("Code Sent")){
+            public void onClick(View v) {
 
-                    String verificationCode = codetext.getText().toString();
-                    if (verificationCode.equals("")){
-                        Toast.makeText(RegisterationActivity.this, "Plese Write Verification Code", Toast.LENGTH_SHORT).show();
-                    }
-                    else {
-                        loadingBar.setTitle("Code Verification");
-                        loadingBar.setMessage("please wait while your Code is verified");
-                        loadingBar.setCanceledOnTouchOutside(false);
-                        loadingBar.show();
+                Intent registeremailIntent = new Intent(RegisterationActivity.this, RegisterEmailActivity.class);
+                startActivity(registeremailIntent);
 
-                        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verifivationId,verificationCode);
-                        signInWithPhoneAuthCredential(credential);
-                    }
+
+
+            }
+        });
+
+        LoginButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+
+                String email = UserEmail.getText().toString();
+                String password = UserPassword.getText().toString();
+
+                if(TextUtils.isEmpty(email))
+                {
+                    Toast.makeText(RegisterationActivity.this, "Please write your email", Toast.LENGTH_SHORT).show();
                 }
-                else{
-                    phoneNumber = ccp.getFullNumberWithPlus();
-                    if (!phoneNumber.equals("")){
-                        loadingBar.setTitle("PhoneNumber Verification");
-                        loadingBar.setMessage("please wait while your phone number is verified");
-                        loadingBar.setCanceledOnTouchOutside(false);
-                        loadingBar.show();
+                if(TextUtils.isEmpty(password))
+                {
+                    Toast.makeText(RegisterationActivity.this, "Please write your password", Toast.LENGTH_SHORT).show();
+                }
+                else
+                {
+                    loadingBar.setTitle("Sign In");
+                    loadingBar.setMessage("Please wait...");
+                    loadingBar.setCanceledOnTouchOutside(false);
+                    loadingBar.show();
 
-                        PhoneAuthProvider.getInstance().verifyPhoneNumber(
-                                phoneNumber,        // Phone number to verify
-                                60,                 // Timeout duration
-                                TimeUnit.SECONDS,   // Unit of timeout
-                                RegisterationActivity.this,               // Activity (for callback binding)
-                                callBacks);        // OnVerificationStateChangedCallbacks
-                    }
-                    else{
-                        Toast.makeText(RegisterationActivity.this,"please Enter a Valid Text",Toast.LENGTH_LONG).show();
-                    }
+
+                    mAuth.signInWithEmailAndPassword(email, password)
+                            .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
+                                @Override
+                                public void onComplete(@NonNull Task<AuthResult> task) {
+
+                                    if(task.isSuccessful())
+                                    {
+                                        sendUserToMainActivity();
+                                        Toast.makeText(RegisterationActivity.this, "Logged in Successfully", Toast.LENGTH_SHORT).show();
+                                        loadingBar.dismiss();
+                                    }
+                                    else
+                                    {
+                                        String message = task.getException().toString();
+                                        Toast.makeText(RegisterationActivity.this, "Error: " + message, Toast.LENGTH_SHORT).show();
+                                        loadingBar.dismiss();
+                                    }
+
+                                }
+                            });
+
                 }
             }
         });
 
-        callBacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+        /////Login with email
 
+
+
+
+        ccp = (CountryCodePicker) findViewById(R.id.ccp);
+        ccp.registerCarrierNumberEditText(phoneText);
+
+        continueAndNextBtn.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onVerificationCompleted(PhoneAuthCredential credential) {
-                signInWithPhoneAuthCredential(credential);
+            public void onClick(View v) {
+
+                if(continueAndNextBtn.getText().equals("Submit") || checker.equals("Code Sent"))
+                {
+
+                    String verificationCode = codeText.getText().toString();
+
+                    if(verificationCode.equals(""))
+                    {
+                        Toast.makeText(RegisterationActivity.this, "Please write verification code first.", Toast.LENGTH_SHORT).show();
+                    }
+                    else
+                    {
+                        loadingBar.setTitle("Code Verification");
+                        loadingBar.setMessage("Please wait, while we are verifying your code.");
+                        loadingBar.setCanceledOnTouchOutside(false);
+                        loadingBar.show();
+
+                        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(mVeryficationId, verificationCode);
+                        signInWithPhoneAuthCredential(credential);
+                    }
+                }
+                else
+                {
+                    phoneNumber = ccp.getFullNumberWithPlus();
+                    if(!phoneNumber.equals(""))
+                    {
+                        loadingBar.setTitle("Phone Number Verification");
+                        loadingBar.setMessage("Please wait, while we are verifying your phone number.");
+                        loadingBar.setCanceledOnTouchOutside(false);
+                        loadingBar.show();
+
+                        PhoneAuthProvider.getInstance().verifyPhoneNumber(phoneNumber, 60, TimeUnit.SECONDS, RegisterationActivity.this, mCallbacks);
+
+                    }
+                    else
+                    {
+                        Toast.makeText(RegisterationActivity.this, "Please write valid phone number.", Toast.LENGTH_SHORT).show();
+                    }
+
+                }
+
+
+            }
+        });
+
+        mCallbacks = new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+            @Override
+            public void onVerificationCompleted(PhoneAuthCredential phoneAuthCredential) {
+
+                signInWithPhoneAuthCredential(phoneAuthCredential);
+
+
             }
 
             @Override
             public void onVerificationFailed(FirebaseException e) {
 
-                Toast.makeText(RegisterationActivity.this, "Invalid Phone No. ......", Toast.LENGTH_SHORT).show();
+                Toast.makeText(RegisterationActivity.this, "Invalid Phone number", Toast.LENGTH_SHORT).show();
+
                 loadingBar.dismiss();
                 relativeLayout.setVisibility(View.VISIBLE);
-                countinueAndNextBtn.setText("Continue");
-                codetext.setVisibility(View.GONE);
 
+                continueAndNextBtn.setText("Continue");
+                codeText.setVisibility(View.GONE);
             }
 
             @Override
-            public void onCodeSent(String s,PhoneAuthProvider.ForceResendingToken forceResendingToken) {
-                super.onCodeSent(s,forceResendingToken);
+            public void onCodeSent(String s, PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                super.onCodeSent(s, forceResendingToken);
 
-                verifivationId = s;
+                mVeryficationId = s;
                 mResendToken = forceResendingToken;
 
                 relativeLayout.setVisibility(View.GONE);
                 checker = "Code Sent";
-                countinueAndNextBtn.setText("Submit");
-                codetext.setVisibility(View.VISIBLE);
-                loadingBar.dismiss();
-                Toast.makeText(RegisterationActivity.this, "Code has been sent to your phone, please check your inbox", Toast.LENGTH_SHORT).show();
-            }
+                continueAndNextBtn.setText("Submit");
+                codeText.setVisibility(View.VISIBLE);
 
+                loadingBar.dismiss();
+                Toast.makeText(RegisterationActivity.this, "Code has been sent, please check.", Toast.LENGTH_SHORT).show();
+            }
         };
+
+
     }
 
     @Override
     protected void onStart() {
         super.onStart();
 
+        if(currentUser1 != null){
+            sendUserToMainActivity();
+        }
+
         FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
 
-        if (firebaseUser != null){
-            Intent HomeIntent = new Intent(RegisterationActivity.this, ContextActivity.class);
-            startActivity(HomeIntent);
+        if(firebaseUser != null)
+        {
+            Intent homeIntent = new Intent(RegisterationActivity.this, ContextActivity.class);
+            startActivity(homeIntent);
             finish();
-
         }
+
+
     }
 
     private void signInWithPhoneAuthCredential(PhoneAuthCredential credential) {
         mAuth.signInWithCredential(credential)
                 .addOnCompleteListener(this, new OnCompleteListener<AuthResult>() {
                     @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
+                    public void onComplete(@NonNull Task<AuthResult> task)
+                    {
+                        if (task.isSuccessful())
+                        {
                             loadingBar.dismiss();
-                            Toast.makeText(RegisterationActivity.this, "Congratulation Verification is done", Toast.LENGTH_SHORT).show();
+                            Toast.makeText(RegisterationActivity.this, "Congratulations, you are logged in successfully.", Toast.LENGTH_SHORT).show();
                             sendUserToMainActivity();
-                        } else {
+
+
+                        }
+                        else
+                        {
                             loadingBar.dismiss();
-                            Toast.makeText(RegisterationActivity.this, "Error", Toast.LENGTH_SHORT).show();
+                            String e = task.getException().toString();
+                            Toast.makeText(RegisterationActivity.this, "Error: " + e, Toast.LENGTH_SHORT).show();
                         }
                     }
                 });
     }
 
-    private void sendUserToMainActivity(){
-        Intent intent = new Intent(RegisterationActivity.this, ContextActivity.class);
+
+    private void sendUserToMainActivity()
+    {
+        Intent intent =  new Intent(RegisterationActivity.this, ContextActivity.class);
         startActivity(intent);
         finish();
     }
+
 }

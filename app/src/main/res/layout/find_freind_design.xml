@@ -49,6 +49,7 @@
             android:text="accetp firend request"
             android:textAllCaps="false"
             android:textColor="@android:color/white"
+            android:visibility="gone"
             android:textSize="13dp">
 
         </Button>
@@ -64,7 +65,7 @@
             android:layout_marginRight="80dp"
             android:background="@color/colorAccent"
             android:padding="5dp"
-
+            android:visibility="gone"
             android:text="Decline firend request"
             android:textAllCaps="false"
             android:textColor="@android:color/white"
