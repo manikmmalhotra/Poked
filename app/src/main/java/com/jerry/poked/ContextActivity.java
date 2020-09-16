@@ -8,6 +8,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ImageView;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
@@ -29,6 +30,14 @@ public class ContextActivity extends AppCompatActivity {
         findPeopleBtn = findViewById(R.id.find_PepoleBtn);
         myContactsList = findViewById(R.id.contactsList);
         myContactsList.setLayoutManager(new LinearLayoutManager(getApplicationContext()));
+
+        findPeopleBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent fndPeopleIntent = new Intent(ContextActivity.this,FindPeopleActivity.class);
+                startActivity(fndPeopleIntent);
+            }
+        });
 
     }
     private BottomNavigationView.OnNavigationItemSelectedListener navigationItemSelectedListener = new BottomNavigationView.OnNavigationItemSelectedListener() {
